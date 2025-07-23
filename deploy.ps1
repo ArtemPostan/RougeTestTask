@@ -8,7 +8,7 @@ $repoDir  = "C:\UnityGames\GitRepos\Rogue"
 Set-Location $repoDir
 
 # 1) Подтягиваем последние изменения
-git pull origin master
+git pull origin main
 
 # 2) Удаляем всё, кроме .git
 Get-ChildItem -Force | Where-Object { $_.Name -ne ".git" } | Remove-Item -Recurse -Force
@@ -41,4 +41,4 @@ Get-ChildItem -Path $buildDir -Recurse -Force | Where-Object {
 git add .
 $ts = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 git commit -m "Auto-deploy WebGL build at $ts"
-git push origin master
+git push origin main
