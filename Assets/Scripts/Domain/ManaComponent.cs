@@ -6,7 +6,7 @@ public class ManaComponent : MonoBehaviour
 {
     public int MaxMana = 100;
     public int CurrentMana { get; private set; }
-    public float RegenPerSecond = 10f;
+    public float RegenPerSecond = 1f;
     public event System.Action<int, int> OnManaChanged;
 
     private void Start()

@@ -4,44 +4,54 @@ using UnityEngine;
 public class CombatSystem : MonoBehaviour
 {
     public static CombatSystem Instance { get; private set; }
-
-    [Tooltip("Задержка до применения урона (секунд), должна совпадать с моментом удара в анимации")]
+    
     public float hitDelay = 0.3f;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+            return;
+        }
+
         Instance = this;
     }
 
     public void RegisterAttack(AttackComponent attack)
     {
-        attack.OnAttackAttempt += (src, tgt) => StartCoroutine(DelayedHandleAttack(src, tgt));
+        // Чтобы избежать дублирования
+        attack.OnAttackAttempt -= HandleAttackAttempt;
+        attack.OnAttackAttempt += HandleAttackAttempt;
     }
 
-    private IEnumerator DelayedHandleAttack(ICharacter source, ICharacter target)
+    private void HandleAttackAttempt(ICharacter source, ICharacter target)
     {
-        // запускаем анимацию атаки сразу (AnimationController уже слушает OnAttackAttempt)
-        // но ждем, пока «дойдёт» удар
-        yield return new WaitForSeconds(hitDelay);
+        StartCoroutine(DelayedHit(source, target));
+    }
 
-        // 1) ВЫЧИСЛЯЕМ УРОН
+    private IEnumerator DelayedHit(ICharacter source, ICharacter target)
+    {
+        yield return new WaitForSeconds(hitDelay);
+       
+        if (target.Health.CurrentHealth <= 0 || source.Health.CurrentHealth <= 0)
+            yield break;
+
+        // 1) Урон
         int baseDmg = source.Attack.BaseDamage;
         float bonusPct = source.Buffs.DamageBonusPercent;
         int dmg = Mathf.RoundToInt(baseDmg * (1 + bonusPct));
-
-        // 2) НАНОСИМ УРОН
         target.Health.TakeDamage(dmg);
 
-        // 3) ШАНС ОГЛУШИТЬ (только игрок)
-        if (source == GameManager.Instance.Player &&
-            Random.value < source.Attack.StunChance)
+        // 2) Оглушение 
+        if (source.Attack.StunChance > 0f &&
+        Random.value < source.Attack.StunChance)
         {
-            var tgtAttack = (AttackComponent)target.Attack;
-            //tgtAttack.StunFor(source.Attack.StunDuration);
+            if (target.Attack is AttackComponent tgtAttack)
+                tgtAttack.StunFor(source.Attack.StunDuration);
         }
 
-        // 4) ШАНС ЛЕЧЕНИЯ (для врагов)
+        // 3) Лечение (только враги)
         if (source.Attack.HealChance > 0f &&
             Random.value < source.Attack.HealChance)
         {

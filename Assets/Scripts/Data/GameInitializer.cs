@@ -1,35 +1,34 @@
-using System.Collections;
+п»їusing System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Инициализирует игрока и врагов на сцене: спавнит префабы,
-/// присваивает данные из ScriptableObject
-/// и подписывается на события смерти для респауна врагов.
-/// Привязать к пустому GameObject, например "SceneController".
+/// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РёРіСЂРѕРєР° Рё РІСЂР°РіРѕРІ РЅР° СЃС†РµРЅРµ: СЃРїР°РІРЅРёС‚ РїСЂРµС„Р°Р±С‹,
+/// РїСЂРёСЃРІР°РёРІР°РµС‚ РґР°РЅРЅС‹Рµ РёР· ScriptableObject
+/// Рё РїРѕРґРїРёСЃС‹РІР°РµС‚СЃСЏ РЅР° СЃРѕР±С‹С‚РёСЏ СЃРјРµСЂС‚Рё РґР»СЏ СЂРµСЃРїР°СѓРЅР° РІСЂР°РіРѕРІ.
 /// </summary>
 public class GameInitializer : MonoBehaviour
 {
     [Header("Data Objects (ScriptableObjects)")]
-    [Tooltip("Данные персонажа игрока")]
+    [Tooltip("Р”Р°РЅРЅС‹Рµ РїРµСЂСЃРѕРЅР°Р¶Р° РёРіСЂРѕРєР°")]
     public CharacterData playerData;
-    [Tooltip("Данные врага (одного типа) для всех врагов)")]
+    [Tooltip("Р”Р°РЅРЅС‹Рµ РІСЂР°РіР° (РѕРґРЅРѕРіРѕ С‚РёРїР°) РґР»СЏ РІСЃРµС… РІСЂР°РіРѕРІ)")]
     public CharacterData enemyData;
 
     [Header("Abilities (ScriptableObjects)")]
-    [Tooltip("Первая способность игрока (удар)")]
+    [Tooltip("РџРµСЂРІР°СЏ СЃРїРѕСЃРѕР±РЅРѕСЃС‚СЊ РёРіСЂРѕРєР° (СѓРґР°СЂ)")]
     public AbilityData strikeAbilityData;
-    [Tooltip("Вторая способность игрока (бафф)")]
+    [Tooltip("Р’С‚РѕСЂР°СЏ СЃРїРѕСЃРѕР±РЅРѕСЃС‚СЊ РёРіСЂРѕРєР° (Р±Р°С„С„)")]
     public AbilityData buffAbilityData;
 
     [Header("Spawn Points & Prefabs")]
-    [Tooltip("Точка спавна для игрока (например, PlayerRoot)")]
+    [Tooltip("РўРѕС‡РєР° СЃРїР°РІРЅР° РґР»СЏ РёРіСЂРѕРєР° (РЅР°РїСЂРёРјРµСЂ, PlayerRoot)")]
     public Transform playerSpawnPoint;
-    [Tooltip("Префаб игрока, должен содержать компоненты: HealthComponent, ManaComponent, AttackComponent, AbilityComponent x2, CharacterView, PlayerController")]
+    [Tooltip("РџСЂРµС„Р°Р± РёРіСЂРѕРєР°, РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РєРѕРјРїРѕРЅРµРЅС‚С‹: HealthComponent, ManaComponent, AttackComponent, AbilityComponent x2, CharacterView, PlayerController")]
     public GameObject playerPrefab;
 
-    [Tooltip("Точки спавна для врагов (Place 3 Transforms on the right side)")]
+    [Tooltip("РўРѕС‡РєРё СЃРїР°РІРЅР° РґР»СЏ РІСЂР°РіРѕРІ (Place 3 Transforms on the right side)")]
     public Transform[] enemySpawnPoints;
-    [Tooltip("Префаб врага, должен содержать компоненты: HealthComponent, AttackComponent, CharacterView, EnemyAI, SelectableComponent")]
+    [Tooltip("РџСЂРµС„Р°Р± РІСЂР°РіР°, РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РєРѕРјРїРѕРЅРµРЅС‚С‹: HealthComponent, AttackComponent, CharacterView, EnemyAI, SelectableComponent")]
     public GameObject enemyPrefab;
 
     private GameObject _playerInstance;
@@ -47,19 +46,16 @@ public class GameInitializer : MonoBehaviour
             Debug.LogError("Player prefab, data or spawn point not assigned in GameInitializer");
             return;
         }
-
-        // Спавн игрока в указанной точке
+       
         _playerInstance = Instantiate(
             playerPrefab,
             playerSpawnPoint.position,
             playerSpawnPoint.rotation
         );
-
-        // Инициализация здоровья
+       
         var health = _playerInstance.GetComponent<HealthComponent>();
         health.Initialize(playerData.maxHealth);
-
-        // Инициализация атаки
+        
         var attack = _playerInstance.GetComponent<AttackComponent>();
         attack.Initialize(
 
@@ -72,8 +68,7 @@ public class GameInitializer : MonoBehaviour
         );
 
         CombatSystem.Instance.RegisterAttack(attack);
-
-        // Инициализация умений
+        
         var abilities = _playerInstance.GetComponents<AbilityComponent>();
         if (abilities.Length >= 2)
         {
@@ -82,13 +77,12 @@ public class GameInitializer : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("На PlayerPrefab должно быть два AbilityComponent для двух способностей!");
+            Debug.LogWarning("РќР° PlayerPrefab РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РґРІР° AbilityComponent РґР»СЏ РґРІСѓС… СЃРїРѕСЃРѕР±РЅРѕСЃС‚РµР№!");
         }
-
-        // Инициализация контроллера игрока
+       
         var controller = _playerInstance.GetComponent<PlayerController>();
         controller.Initialize();
-        // Регистрируем в глобальном фасаде
+       
         GameManager.Instance.RegisterPlayer(controller);
     }
 
@@ -110,11 +104,11 @@ public class GameInitializer : MonoBehaviour
     {
         var enemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
 
-        // Инициализация здоровья
+       
         var health = enemy.GetComponent<HealthComponent>();
         health.Initialize(enemyData.maxHealth);
 
-        // Инициализация атаки
+       
         var attack = enemy.GetComponent<AttackComponent>();
         attack.Initialize(
             enemyData.attackInterval,
@@ -126,14 +120,15 @@ public class GameInitializer : MonoBehaviour
         );
         CombatSystem.Instance.RegisterAttack(attack);
 
-        // Подписка на смерть для респауна
-        health.OnDeath += () =>
+        var healthComponent = enemy.GetComponent<HealthComponent>();
+        if (healthComponent != null)
         {
-            Destroy(enemy);
-            StartCoroutine(RespawnEnemy(spawnPoint));
-        };
-
-        // Инициализация AI
+            healthComponent.OnDeath += () =>
+            {                
+                StartCoroutine(RespawnEnemy(spawnPoint));
+            };
+        }
+        
         var ai = enemy.GetComponent<EnemyAI>();
         if (ai != null && _playerInstance != null)
             ai.Initialize(_playerInstance.GetComponent<ICharacter>());
@@ -141,7 +136,7 @@ public class GameInitializer : MonoBehaviour
 
     private IEnumerator RespawnEnemy(Transform spawnPoint)
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(2);
         SpawnEnemy(spawnPoint);
-    }
+    }    
 }

@@ -7,10 +7,10 @@ public class CharacterData : ScriptableObject
 {
     public string characterName;
     public int maxHealth;
-    public float attackInterval;      // сек.
+    public float attackInterval;    
     public int baseDamage;
-    public float stunChance;         // 0Ц1
-    public float stunDuration;       // сек.
-    public float healChance;         // дл€ врагов, 0Ц1
+    public float stunChance;        
+    public float stunDuration;       
+    public float healChance;        
     public int healAmount;
 }

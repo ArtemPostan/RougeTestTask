@@ -1,11 +1,15 @@
-using System;
-using System.Collections;
+п»їusing System.Collections;
 using UnityEngine;
+using System;
 
 [RequireComponent(typeof(BuffComponent))]
 public class AttackComponent : MonoBehaviour
 {
     public event Action<ICharacter, ICharacter> OnAttackAttempt;
+
+    public event Action<float> OnStunned;
+
+    BuffComponent buffComponent;
 
     private float _attackInterval;
     private int _baseDamage;
@@ -25,6 +29,11 @@ public class AttackComponent : MonoBehaviour
     public float StunDuration => _stunDuration;
     public float HealChance => _healChance;
     public int HealAmount => _healAmount;
+
+    private void Awake()
+    {
+        buffComponent = GetComponent<BuffComponent>();
+    }
     public void Initialize(
         float attackInterval,
         int baseDamage,
@@ -48,23 +57,12 @@ public class AttackComponent : MonoBehaviour
     {
         while (true)
         {
-            if (_target != null)
-            {
-                if (_isPaused)
-                {
-                    Debug.Log($"[{name}] ATTACK PAUSED against {_target as MonoBehaviour}");
-                }
-                else
-                {
-                    Debug.Log($"[{name}] ATTACK {_target as MonoBehaviour}");
-                    OnAttackAttempt?.Invoke(_owner, _target);
-                }
-            }
-            else
-            {
-                Debug.Log($"[{name}] no target set");
-            }
             yield return new WaitForSeconds(_attackInterval / _speedModifier);
+
+            if (_isPaused || _target == null)
+                continue;
+
+            OnAttackAttempt?.Invoke(_owner, _target);
         }
     }
 
@@ -73,27 +71,57 @@ public class AttackComponent : MonoBehaviour
         _target = target;
     }
 
-    public void PauseAttack()
-    {
-        _isPaused = true;
-    }
+    public void PauseAttack() => _isPaused = true;
 
-    public void ResumeAttack()
-    {
-        Debug.Log($"[{name}] ResumeAttack()");
-        _isPaused = false;
-    }
+    public void ResumeAttack() => _isPaused = false;
 
     public void SetAttackSpeedModifier(float modifier)
     {
         _speedModifier = modifier;
     }
-
-    /// <summary>
-    /// Поднимает событие атаки извне (для навыков)
-    /// </summary>
+    
     public void TriggerAttack(ICharacter target)
     {
         OnAttackAttempt?.Invoke(_owner, target);
+    }    
+    private Coroutine _stunRoutine;
+
+    public void StunFor(float duration)
+    {
+        if (_owner.Health.IsAlive)
+        {
+            if (_stunRoutine != null)
+                StopCoroutine(_stunRoutine);
+
+            _stunRoutine = StartCoroutine(StunCoroutine(duration));
+        }
+    }
+
+    private IEnumerator StunCoroutine(float duration)
+    {
+        PauseAttack();
+
+        OnStunned?.Invoke(duration); 
+        EffectsPool.Instance.PlayEffect("Stun", transform.position, 2f);
+        yield return new WaitForSeconds(duration);
+        ResumeAttack();
+        _stunRoutine = null;
+    }
+
+    public int CalculatedDamage
+    {
+        get
+        {
+            float bonus = buffComponent.DamageBonusPercent;
+            return Mathf.RoundToInt(_baseDamage * (1 + bonus));
+        }
+    }
+
+    public float CalculatedAttackSpeed
+    {
+        get
+        {            
+            return (_attackInterval * _speedModifier);
+        }
     }
 }

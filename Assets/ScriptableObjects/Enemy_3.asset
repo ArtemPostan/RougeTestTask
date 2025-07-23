@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterName: Enemy_3
   maxHealth: 75
-  attackInterval: 15
+  attackInterval: 4
   baseDamage: 15
   stunChance: 0
   stunDuration: 0

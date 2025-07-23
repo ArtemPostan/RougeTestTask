@@ -7,8 +7,7 @@ public class AbilityButtonUI : MonoBehaviour
 {
     [Tooltip("Индекс способности (0 — Strike, 1 — Buff)")]
     public int abilityIndex;
-
-    [Tooltip("Дочерний Image с Filled = Radial360")]
+ 
     public Image cooldownOverlay;
 
     private PlayerController _player;
@@ -17,23 +16,19 @@ public class AbilityButtonUI : MonoBehaviour
     private Coroutine _cdRoutine;
 
     private void Awake()
-    {
-        // Подпишемся, когда GameManager будет готов
-        GameManager.Instance.OnGameReady += Init;
-        // Если уже готовы — инициализируем сразу
+    {        
+        GameManager.Instance.OnGameReady += Init;       
         if (GameManager.Instance.Player != null)
             Init();
     }
 
     private void Init()
-    {
-        // Убираем двойную инициализацию
+    {     
         GameManager.Instance.OnGameReady -= Init;
 
         _player = GameManager.Instance.Player;
         _button = GetComponent<Button>();
-
-        // Получаем компонент способности по индексу
+       
         var abilities = _player.GetComponents<AbilityComponent>();
         if (abilityIndex < 0 || abilityIndex >= abilities.Length)
         {
@@ -42,8 +37,7 @@ public class AbilityButtonUI : MonoBehaviour
             return;
         }
         _ability = abilities[abilityIndex];
-
-        // Инициализация оверлея и подписки
+       
         cooldownOverlay.fillAmount = 0f;
         _button.onClick.AddListener(() => _player.UseAbility(abilityIndex));
         _ability.OnCooldownStarted += OnCooldownStarted;

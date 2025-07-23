@@ -17,6 +17,8 @@ public class BuffComponent : MonoBehaviour
 
     public void Apply(AbilityData data)
     {
+        EffectsPool.Instance.PlayEffect("Buff", transform.position, 0.5f);
+        Debug.Log("Buff нажат");
         StartCoroutine(BuffRoutine(data));
     }
 

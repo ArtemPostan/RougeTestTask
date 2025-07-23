@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using static AbilityData;
 
 [RequireComponent(typeof(ManaComponent))]
 public class AbilityComponent : MonoBehaviour
@@ -21,17 +22,29 @@ public class AbilityComponent : MonoBehaviour
     }
 
     public void Use(ICharacter target)
-    {
+    {       
         if (_cdRemaining > 0f || !_mana.TrySpend(_data.manaCost)) return;
 
-        var attack = GetComponent<AttackComponent>();
-        if (_data.damageBonusPercent > 0f || _data.attackSpeedModifier != 1f)
+        switch (_data.abilityType)
         {
-            GetComponent<BuffComponent>().Apply(_data);
-        }
-        else
-        {
-            attack.TriggerAttack(target);
+            case AbilityType.Buff:
+                GetComponent<BuffComponent>().Apply(_data);
+                break;
+
+            case AbilityType.Attack:
+                if (target != null)
+                    GetComponent<AttackComponent>().TriggerAttack(target);
+                break;
+
+            case AbilityType.Hybrid:
+                if (target != null)
+                    GetComponent<AttackComponent>().TriggerAttack(target);
+                GetComponent<BuffComponent>().Apply(_data);
+                break;
+
+            case AbilityType.Heal:
+                GetComponent<HealthComponent>().Heal(_data.healAmount);
+                break;
         }
 
         StartCooldown();

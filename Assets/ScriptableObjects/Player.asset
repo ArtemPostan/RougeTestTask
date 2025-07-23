@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterName: Player
   maxHealth: 100
-  attackInterval: 1
+  attackInterval: 2
   baseDamage: 20
-  stunChance: 1
-  stunDuration: 1
-  healChance: 1
+  stunChance: 0.3
+  stunDuration: 3
+  healChance: 0.1
   healAmount: 20

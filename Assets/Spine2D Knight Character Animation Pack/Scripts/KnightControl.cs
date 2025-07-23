@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
 using Spine;
 using Spine.Unity;
+using UnityEngine.U2D;
 
 public class KnightControl : MonoBehaviour
 {
@@ -40,8 +41,8 @@ public class KnightControl : MonoBehaviour
     public string skillAnimationName_2;
     [SpineAnimation]
     public string skillAnimationName_3;
-
     #endregion
+    private bool _isDead = false;
 
     SkeletonAnimation skeletonAnimation;
 
@@ -58,56 +59,77 @@ public class KnightControl : MonoBehaviour
 
     public void running()
     {
+        if (_isDead) return;
         spineAnimationState.SetAnimation(0, runAnimationName, true);
     }
     public void walking()
     {
+        if (_isDead) return;
         spineAnimationState.SetAnimation(0, walkAnimationName, true);
     }
     public void idle()
     {
+        if (_isDead) return;
         spineAnimationState.SetAnimation(0, idleAnimationName, true);
     }
     public void jump()
     {
+        if (_isDead) return;
         spineAnimationState.SetAnimation(0, jumpAnimationName, true);
     }
     public void getHit()
     {
+        if (_isDead) return;
+        var current = spineAnimationState.GetCurrent(0);
+
+        if (current != null && current.Animation.Name == atkAnimationName_1)
+        {            
+            return;
+        }
+
         spineAnimationState.SetAnimation(0, hitAnimationName, false);
-        spineAnimationState.AddAnimation(0, idleAnimationName, true, 0);
+        spineAnimationState.AddAnimation(0, idleAnimationName, true, 0f);
     }
     public void death()
     {
+        if (_isDead) return; 
+
+        _isDead = true;
         spineAnimationState.SetAnimation(0, deathAnimationName, false);
     }
     public void stun()
     {
+        if (_isDead) return;
         spineAnimationState.SetAnimation(0, stunAnimationName, true);
     }
     public void attack_1()
     {
-        // Сначала – одноразовая атака
+        if (_isDead) return;
+        
         spineAnimationState.SetAnimation(0, atkAnimationName_1, false);
-        // Потом – возвращаемся в idle
+        
         spineAnimationState.AddAnimation(0, idleAnimationName, true, 0);
     }
     public void attack_2()
     {
+        if (_isDead) return;
         spineAnimationState.SetAnimation(0, atkAnimationName_2, false);
         spineAnimationState.AddAnimation(0, idleAnimationName, true, 0);
     }
     public void skill_1()
     {
+        if (_isDead) return;
         spineAnimationState.SetAnimation(0, skillAnimationName_1, true);
     }
     public void skill_2()
     {
+        if (_isDead) return;
         spineAnimationState.SetAnimation(0, skillAnimationName_2, true);
     }
     public void skill_3()
     {
+        if (_isDead) return;
         spineAnimationState.SetAnimation(0, skillAnimationName_3, true);
-    }
+    }   
 
 }

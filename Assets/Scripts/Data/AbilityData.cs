@@ -5,10 +5,14 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "AbilityData", menuName = "Data/AbilityData")]
 public class AbilityData : ScriptableObject
 {
+    public enum AbilityType { Attack, Buff, Hybrid, Heal }
+    public AbilityType abilityType;
+
     public string abilityName;
     public int manaCost;
-    public float cooldown;           // сек.
-    public float damageBonusPercent; // 1.0 == +100%
-    public float attackSpeedModifier; // 0.6 == 60% скорости
-    public float duration;           // длительность баффа, сек.
+    public float cooldown;        
+    public float damageBonusPercent;
+    public float attackSpeedModifier; 
+    public float duration;
+    public int healAmount;
 }

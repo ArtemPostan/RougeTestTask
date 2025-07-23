@@ -1,40 +1,46 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 [RequireComponent(typeof(HealthComponent))]
 public class CharacterView : MonoBehaviour
 {
     [Header("Data Components")]
     [SerializeField] private HealthComponent _healthComponent;
-    [SerializeField] private ManaComponent _manaComponent; // может быть null для врагов
+    [SerializeField] private ManaComponent _manaComponent; 
+
+    private CharacterAnimationController _characterAnimationController;
 
     [Header("UI Elements")]
-    [SerializeField] private Image _healthFill;     // Image с типом Fill → Fill Amount
-    [SerializeField] private TMP_Text _healthText;  // опционально, для текста "HP 50/100"
-    [SerializeField] private Image _manaFill;       // аналогично для маны
-    [SerializeField] private TMP_Text _manaText;    // опционально
+    [SerializeField] private Image _healthFill;   
+    [SerializeField] private TMP_Text _healthText; 
+    [SerializeField] private Image _manaFill;      
+    [SerializeField] private TMP_Text _manaText;   
 
     private void Reset()
-    {
-        // Автоматически подцепляем ссылки на компоненты, если забыли в инспекторе
+    {        
         _healthComponent = GetComponent<HealthComponent>();
         _manaComponent = GetComponent<ManaComponent>();
     }
 
-    private void OnEnable()
+    private void Awake()
     {
-        // Подписываемся на события
+        _characterAnimationController = GetComponentInChildren<CharacterAnimationController>();
+    }
+    private void OnEnable()
+    {        
         _healthComponent.OnHealthChanged += HandleHealthChanged;
         _healthComponent.OnDeath += HandleDeath;
 
+
         if (_manaComponent != null)
             _manaComponent.OnManaChanged += HandleManaChanged;
+        
     }
 
     private void OnDisable()
-    {
-        // Отписываемся, чтобы не было утечек
+    {       
         _healthComponent.OnHealthChanged -= HandleHealthChanged;
         _healthComponent.OnDeath -= HandleDeath;
 
@@ -43,8 +49,7 @@ public class CharacterView : MonoBehaviour
     }
 
     private void Start()
-    {
-        // Инициализируем UI текущими значениями
+    {       
         HandleHealthChanged(_healthComponent.CurrentHealth, _healthComponent.MaxHealth);
         if (_manaComponent != null)
             HandleManaChanged(_manaComponent.CurrentMana, _manaComponent.MaxMana);
@@ -70,7 +75,13 @@ public class CharacterView : MonoBehaviour
 
     private void HandleDeath()
     {
-        // Можно тут запустить анимацию смерти, скрыть UI и т.п.
-        gameObject.SetActive(false);
+        StartCoroutine(Waiter());
+             
+    }
+
+    private IEnumerator Waiter()
+    {
+        yield return new WaitForSeconds(1);
+        Destroy(gameObject);
     }
 }

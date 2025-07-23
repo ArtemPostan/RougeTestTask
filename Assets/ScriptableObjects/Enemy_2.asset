@@ -18,5 +18,5 @@ MonoBehaviour:
   baseDamage: 5
   stunChance: 0
   stunDuration: 0
-  healChance: 5
+  healChance: 0.25
   healAmount: 10

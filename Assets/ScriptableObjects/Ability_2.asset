@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c8d0acf47534f34f83b14fcd2132a96, type: 3}
   m_Name: Ability_2
   m_EditorClassIdentifier: 
-  abilityName: Holy Weapon
+  abilityType: 1
+  abilityName: PoisonBlade
   manaCost: 50
-  cooldown: 50
-  damageBonusPercent: 100
-  attackSpeedModifier: 20
+  cooldown: 20
+  damageBonusPercent: 1
+  attackSpeedModifier: 0.6
   duration: 10
+  healAmount: 0
