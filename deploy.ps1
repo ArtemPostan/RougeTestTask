@@ -1,14 +1,14 @@
 # Папка с проектом
 $buildDir = "C:\UnityGames\RogueTestTask"
 
-# Локальный клон вашего Pages-репозитория
+# Локальный клон вашего репозитория
 $repoDir  = "C:\UnityGames\GitRepos\Rogue"
 
 # Переходим в репо
 Set-Location $repoDir
 
 # 1) Подтягиваем последние изменения
-git pull origin main
+git pull origin master
 
 # 2) Удаляем всё, кроме .git
 Get-ChildItem -Force | Where-Object { $_.Name -ne ".git" } | Remove-Item -Recurse -Force
@@ -41,4 +41,4 @@ Get-ChildItem -Path $buildDir -Recurse -Force | Where-Object {
 git add .
 $ts = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 git commit -m "Auto-deploy WebGL build at $ts"
-git push origin main
+git push origin master
